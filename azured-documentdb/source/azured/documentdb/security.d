@@ -1,0 +1,2 @@
+﻿module azured.documentdb.security;
+

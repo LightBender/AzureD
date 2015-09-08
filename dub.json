@@ -1,0 +1,17 @@
+{
+	"name": "AzureD",
+	"description": "AzureD is a D implementation of the Azure REST API's.",
+	"copyright": "Copyright © 2015",
+	"authors": ["Adam Wilson"],
+	"license": "BSL-1.0",
+	"targetType": "none",
+	"dependencies": {
+		"AzureD:azured-documentdb": "*"
+	},
+	"subPackages": [{
+		"name": "azured-documentdb",
+		"targetType": "library",
+		"sourcePaths": ["azured-documentdb/source"],
+		"importPaths": ["azured-documentdb/source"]
+        }]
+}

@@ -1,0 +1,12 @@
+{
+	"name": "azured-documentdb",
+	"description": "Azure DocumentDB API.",
+	"copyright": "Copyright © 2015, Adam Wilson",
+	"authors": ["Adam Wilson"],
+	"license": "BSL-1.0",
+	"targetType": "library",
+	"dependencies": {
+		"vibe-d": "~>0.7.24",
+		"openssl": "~>1.1.4+1.0.1g",
+	}
+}
