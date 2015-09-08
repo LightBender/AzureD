@@ -1,5 +1,5 @@
 #Executeables
-azured-documentdb.lib
+libdocumentdb.a
 
 #DUB
 *.userprefs

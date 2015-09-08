@@ -1,5 +1,5 @@
 {
-	"name": "azured-documentdb",
+	"name": "documentdb",
 	"description": "Azure DocumentDB API.",
 	"copyright": "Copyright © 2015, Adam Wilson",
 	"authors": ["Adam Wilson"],
