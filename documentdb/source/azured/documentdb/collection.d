@@ -132,7 +132,7 @@ public Collection createCollection(AzureDocumentDBConnection conn, string Databa
 			req.method = HTTPMethod.POST;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
 			req.writeJsonBody(["id" : ID]);
-			writeRequiredHeaders(req, conn, "POST", "dbs", "");
+			writeRequiredHeaders(req, conn, "POST", "colls", "");
 		},
 		(scope res) {
 			deserializeJson!Collection(db, res.readJson());
@@ -148,7 +148,7 @@ public CollectionList listCollections(AzureDocumentDBConnection conn, string Dat
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			writeRequiredHeaders(req, conn, "GET", "dbs", "");
+			writeRequiredHeaders(req, conn, "GET", "colls", "");
 		},
 		(scope res) {
 			deserializeJson!CollectionList(dbl, res.readJson());
@@ -164,7 +164,7 @@ public Collection getCollection(AzureDocumentDBConnection conn, string DatabaseR
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			writeRequiredHeaders(req, conn, "GET", "dbs", RID);
+			writeRequiredHeaders(req, conn, "GET", "colls", RID);
 		},
 		(scope res) {
 			deserializeJson!Collection(db, res.readJson());
@@ -179,7 +179,7 @@ public void deleteCollection(AzureDocumentDBConnection conn, string DatabaseRID,
 		(scope req) {
 			req.method = HTTPMethod.DELETE;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			writeRequiredHeaders(req, conn, "DELETE", "dbs", RID);
+			writeRequiredHeaders(req, conn, "DELETE", "colls", RID);
 		}
 	);
 }
