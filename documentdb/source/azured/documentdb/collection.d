@@ -1,8 +1,7 @@
 ﻿module azured.documentdb.collection;
 
 import azured.documentdb.connection;
-import azured.documentdb.security;
-import std.datetime;
+import azured.documentdb.utils;
 import std.format;
 import vibe.d;
 
@@ -133,15 +132,12 @@ public Collection createCollection(AzureDocumentDBConnection conn, string Databa
 			req.method = HTTPMethod.POST;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
 			req.writeJsonBody(["id" : ID]);
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "GET", "dbs", "", reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "POST", "dbs", "");
 		},
 		(scope res) {
 			deserializeJson!Collection(db, res.readJson());
 		}
-		);
+	);
 	return db;
 }
 
@@ -152,15 +148,12 @@ public CollectionList listCollections(AzureDocumentDBConnection conn, string Dat
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "POST", "dbs", "", reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "GET", "dbs", "");
 		},
 		(scope res) {
 			deserializeJson!CollectionList(dbl, res.readJson());
 		}
-		);
+	);
 	return dbl;
 }
 
@@ -171,15 +164,12 @@ public Collection getCollection(AzureDocumentDBConnection conn, string DatabaseR
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "GET", "dbs", RID, reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "GET", "dbs", RID);
 		},
 		(scope res) {
 			deserializeJson!Collection(db, res.readJson());
 		}
-		);
+	);
 	return db;
 }
 
@@ -189,10 +179,7 @@ public void deleteCollection(AzureDocumentDBConnection conn, string DatabaseRID,
 		(scope req) {
 			req.method = HTTPMethod.DELETE;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "DELETE", "dbs", RID, reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "DELETE", "dbs", RID);
 		}
 	);
 }
