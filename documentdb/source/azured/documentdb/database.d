@@ -1,6 +1,8 @@
 ﻿module azured.documentdb.database;
 
 import azured.documentdb.connection;
+import azured.documentdb.security;
+import std.datetime;
 import std.format;
 import vibe.d;
 
@@ -50,7 +52,7 @@ public class Database
 	public @safe @property @name("_users") string Users(string value) { return _users = value; }
 }
 
-public Database createDatabases(AzureDocumentDBConnection conn, string ID)
+public Database createDatabase(AzureDocumentDBConnection conn, string ID)
 {
 	Database db = null;
 	requestHTTP(format("https://%s.documents.azure.com/dbs", conn.Account),
@@ -58,6 +60,10 @@ public Database createDatabases(AzureDocumentDBConnection conn, string ID)
 			req.method = HTTPMethod.POST;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
 			req.writeJsonBody(["id" : ID]);
+			//Write required headers
+			SysTime reqTime = Clock.currTime().toUTC();
+			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "GET", "dbs", "", reqTime));
+			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
 		},
 		(scope res) {
 			deserializeJson!Database(db, res.readJson());
@@ -73,6 +79,10 @@ public DatabaseList listDatabases(AzureDocumentDBConnection conn)
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
+			//Write required headers
+			SysTime reqTime = Clock.currTime().toUTC();
+			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "POST", "dbs", "", reqTime));
+			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
 		},
 		(scope res) {
 			deserializeJson!DatabaseList(dbl, res.readJson());
@@ -88,6 +98,10 @@ public Database getDatabase(AzureDocumentDBConnection conn, string RID)
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
+			//Write required headers
+			SysTime reqTime = Clock.currTime().toUTC();
+			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "GET", "dbs", RID, reqTime));
+			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
 		},
 		(scope res) {
 			deserializeJson!Database(db, res.readJson());
@@ -102,6 +116,10 @@ public void deleteDatabase(AzureDocumentDBConnection conn, string RID)
 		(scope req) {
 			req.method = HTTPMethod.DELETE;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
+			//Write required headers
+			SysTime reqTime = Clock.currTime().toUTC();
+			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "DELETE", "dbs", RID, reqTime));
+			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
 		}
 	);
 }
