@@ -5,7 +5,7 @@ import azured.documentdb.utils;
 import std.format;
 import vibe.d;
 
-public class DocumentList
+public abstract class DocumentList(T:Document)
 {
 	private string _rid;
 	public @safe @property @name("_rid") string RID() { return _rid; }
@@ -14,18 +14,18 @@ public class DocumentList
 	private int _count;
 	public @safe @property @name("_count") int Count() { return _count; }
 	public @safe @property @name("_count") int Count(int value) { return _count = value; }
-	
-	private Document[] _documents;
-	public @safe @property @name("Documents") Document[] Documents() { return _documents; }
-	public @safe @property @name("Documents") Document[] Documents(Document[] value) { return _documents = value; }
+
+	private T[] _documents;
+	public @safe @property @name("Documents") T[] Documents() { return _documents; }
+	public @safe @property @name("Documents") T[] Documents(T[] value) { return _documents = value; }
 }
 
-public class Document
+public abstract class Document
 {
 	private string _id;
 	public @safe @property @name("id") string ID() { return _id; }
 	public @safe @property @name("id") string ID(string value) { return _id = value; }
-	
+
 	private string _rid;
 	public @safe @property @name("_rid") string RID() { return _rid; }
 	public @safe @property @name("_rid") string RID(string value) { return _rid = value; }
@@ -47,26 +47,55 @@ public class Document
 	public @safe @property @name("_attachments") string Attachments(string value) { return _attachments = value; }
 }
 
-public Document createDocument(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID, string ID)
+public T createDocument(T:Document)(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID, T doc)
 {
-	Document db = null;
+	T db = null;
 	requestHTTP(format("https://%s.documents.azure.com/dbs/%s/colls/%s", conn.Account, DatabaseRID, CollectionRID),
 		(scope req) {
 			req.method = HTTPMethod.POST;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			req.writeJsonBody(["id" : ID]);
+			Json jObj = serializeJson!T(doc);
+			jObj.remove("_rid");
+			jObj.remove("_ts");
+			jObj.remove("_self");
+			jObj.remove("_etag");
+			jObj.remove("_attachments");
+			req.writeJsonBody(jObj);
 			writeRequiredHeaders(req, conn, "POST", "docs", "");
 		},
 		(scope res) {
-			deserializeJson!Document(db, res.readJson());
+			deserializeJson!T(db, res.readJson());
 		}
 		);
 	return db;
 }
 
-public DocumentList listDocuments(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID)
+public T updateDocument(T:Document)(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID, T doc)
 {
-	DocumentList dbl = null;
+	T db = null;
+	requestHTTP(format("https://%s.documents.azure.com/dbs/%s/colls/%s/docs/%s", conn.Account, DatabaseRID, CollectionRID, doc.ID),
+		(scope req) {
+			req.method = HTTPMethod.PUT;
+			req.httpVersion = HTTPVersion.HTTP_1_1;
+			Json jObj = serializeJson!T(doc);
+			jObj.remove("_rid");
+			jObj.remove("_ts");
+			jObj.remove("_self");
+			jObj.remove("_etag");
+			jObj.remove("_attachments");
+			req.writeJsonBody(jObj);
+			writeRequiredHeaders(req, conn, "PUT", "docs", "");
+		},
+		(scope res) {
+			deserializeJson!T(db, res.readJson());
+		}
+		);
+	return db;
+}
+
+public T listDocuments(U, T:DocumentList!U)(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID)
+{
+	T dbl = null;
 	requestHTTP(format("https://%s.documents.azure.com/dbs/%s/colls/%s", conn.Account, DatabaseRID, CollectionRID),
 		(scope req) {
 			req.method = HTTPMethod.GET;
@@ -74,15 +103,15 @@ public DocumentList listDocuments(AzureDocumentDBConnection conn, string Databas
 			writeRequiredHeaders(req, conn, "GET", "docs", "");
 		},
 		(scope res) {
-			deserializeJson!DocumentList(dbl, res.readJson());
+			deserializeJson!T(dbl, res.readJson());
 		}
-		);
+	);
 	return dbl;
 }
 
-public Document getDocument(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID, string RID)
+public T getDocument(T:Document)(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID, string RID)
 {
-	Document db = null;
+	T db = null;
 	requestHTTP(format("https://%s.documents.azure.com/dbs/%s/colls/%s/docs/%s", conn.Account, DatabaseRID, CollectionRID, RID),
 		(scope req) {
 			req.method = HTTPMethod.GET;
@@ -90,9 +119,9 @@ public Document getDocument(AzureDocumentDBConnection conn, string DatabaseRID, 
 			writeRequiredHeaders(req, conn, "GET", "docs", RID);
 		},
 		(scope res) {
-			deserializeJson!Document(db, res.readJson());
+			deserializeJson!T(db, res.readJson());
 		}
-		);
+	);
 	return db;
 }
 
@@ -104,5 +133,5 @@ public void deleteDocument(AzureDocumentDBConnection conn, string DatabaseRID, s
 			req.httpVersion = HTTPVersion.HTTP_1_1;
 			writeRequiredHeaders(req, conn, "DELETE", "docs", RID);
 		}
-		);
+	);
 }
