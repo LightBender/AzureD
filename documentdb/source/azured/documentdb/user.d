@@ -9,8 +9,8 @@ import vibe.d;
 public class UserList : DocDBListBase
 {
 	private User[] _users;
-	public @safe @property @name("Users") User[] Databases() { return _users; }
-	public @safe @property @name("Users") User[] Databases(User[] value) { return _users = value; }
+	public @safe @property @name("Users") User[] Users() { return _users; }
+	public @safe @property @name("Users") User[] Users(User[] value) { return _users = value; }
 }
 
 public class User : DocDBBase
@@ -45,7 +45,7 @@ public User updateUser(AzureDocumentDBConnection conn, string DatabaseRID, User 
 			req.method = HTTPMethod.PUT;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
 			req.writeJsonBody(["id" : user.ID]);
-			writeRequiredHeaders(req, conn, "PUT", "users", "");
+			writeRequiredHeaders(req, conn, "PUT", "users", user.RID);
 		},
 		(scope res) {
 			deserializeJson!User(db, res.readJson());
