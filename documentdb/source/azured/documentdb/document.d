@@ -46,7 +46,7 @@ public T createDocument(T:Document)(AzureDocumentDBConnection conn, string Datab
 public T updateDocument(T:Document)(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID, T doc)
 {
 	T db = null;
-	requestHTTP(format("https://%s.documents.azure.com/dbs/%s/colls/%s/docs/%s", conn.Account, DatabaseRID, CollectionRID, doc.ID),
+	requestHTTP(format("https://%s.documents.azure.com/dbs/%s/colls/%s/docs/%s", conn.Account, DatabaseRID, CollectionRID, doc.RID),
 		(scope req) {
 			req.method = HTTPMethod.PUT;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
