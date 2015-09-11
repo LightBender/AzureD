@@ -1,48 +1,20 @@
 ﻿module azured.documentdb.database;
 
+import azured.documentdb.base;
 import azured.documentdb.connection;
-import azured.documentdb.security;
-import std.datetime;
+import azured.documentdb.utils;
 import std.format;
 import vibe.d;
 
-public class DatabaseList
+public class DatabaseList : DocDBListBase
 {
-	private string _rid;
-	public @safe @property @name("_rid") string RID() { return _rid; }
-	public @safe @property @name("_rid") string RID(string value) { return _rid = value; }
-
-	private int _count;
-	public @safe @property @name("_count") int Count() { return _count; }
-	public @safe @property @name("_count") int Count(int value) { return _count = value; }
-
 	private Database[] _databases;
 	public @safe @property @name("Databases") Database[] Databases() { return _databases; }
 	public @safe @property @name("Databases") Database[] Databases(Database[] value) { return _databases = value; }
 }
 
-public class Database
+public class Database : DocDBBase
 {
-	private string _id;
-	public @safe @property @name("id") string ID() { return _id; }
-	public @safe @property @name("id") string ID(string value) { return _id = value; }
-
-	private string _rid;
-	public @safe @property @name("_rid") string RID() { return _rid; }
-	public @safe @property @name("_rid") string RID(string value) { return _rid = value; }
-
-	private ulong _ts;
-	public @safe @property @name("_ts") ulong Timestamp() { return _ts; }
-	public @safe @property @name("_ts") ulong Timestamp(ulong value) { return _ts = value; }
-
-	private string _self;
-	public @safe @property @name("_self") string Self() { return _self; }
-	public @safe @property @name("_self") string Self(string value) { return _self = value; }
-
-	private string _etag;
-	public @safe @property @name("_etag") string ETag() { return _etag; }
-	public @safe @property @name("_etag") string ETag(string value) { return _etag = value; }
-
 	private string _colls;
 	public @safe @property @name("_colls") string Collections() { return _colls; }
 	public @safe @property @name("_colls") string Collections(string value) { return _colls = value; }
@@ -60,15 +32,12 @@ public Database createDatabase(AzureDocumentDBConnection conn, string ID)
 			req.method = HTTPMethod.POST;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
 			req.writeJsonBody(["id" : ID]);
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "GET", "dbs", "", reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "POST", "dbs", "");
 		},
 		(scope res) {
 			deserializeJson!Database(db, res.readJson());
 		}
-		);
+	);
 	return db;
 }
 
@@ -79,15 +48,12 @@ public DatabaseList listDatabases(AzureDocumentDBConnection conn)
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "POST", "dbs", "", reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "GET", "dbs", "");
 		},
 		(scope res) {
 			deserializeJson!DatabaseList(dbl, res.readJson());
 		}
-		);
+	);
 	return dbl;
 }
 
@@ -98,15 +64,12 @@ public Database getDatabase(AzureDocumentDBConnection conn, string RID)
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "GET", "dbs", RID, reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "GET", "dbs", RID);
 		},
 		(scope res) {
 			deserializeJson!Database(db, res.readJson());
 		}
-		);
+	);
 	return db;
 }
 
@@ -116,10 +79,7 @@ public void deleteDatabase(AzureDocumentDBConnection conn, string RID)
 		(scope req) {
 			req.method = HTTPMethod.DELETE;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "DELETE", "dbs", RID, reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "DELETE", "dbs", RID);
 		}
 	);
 }

@@ -8,18 +8,23 @@ public class AzureDocumentDBConnection
 	public @safe @property string Account() { return _account; }
 	public @safe @property string Account(string value) { return _account = value; }
 
-	private string _key;
-	public @safe @property string Key() { return _key; }
+	private string _masterKey;
+	public @safe @property string MasterKey() { return _masterKey; }
 
-	this(string account, string key)
+	private string _resourceKey;
+	public @safe @property string ResourceKey() { return _resourceKey; }
+
+	this(string account, string resourceKey, string masterKey = null)
 	{
 		_account = account;
-		_key = key;
+		_masterKey = masterKey;
+		_resourceKey = resourceKey;
 	}
 
-	this(string account, ubyte[] key)
+	this(string account, ubyte[] resourceKey, ubyte[] masterKey = null)
 	{
 		_account = account;
-		_key = Base64.encode(key);
+		_masterKey = Base64.encode(masterKey);
+		_resourceKey = Base64.encode(resourceKey);
 	}
 }

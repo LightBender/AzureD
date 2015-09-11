@@ -1,8 +1,8 @@
 ﻿module azured.documentdb.collection;
 
+import azured.documentdb.base;
 import azured.documentdb.connection;
-import azured.documentdb.security;
-import std.datetime;
+import azured.documentdb.utils;
 import std.format;
 import vibe.d;
 
@@ -18,43 +18,15 @@ public enum CollectionIndexType
 	Range,
 }
 
-public class CollectionList
+public class CollectionList : DocDBListBase
 {
-	private string _rid;
-	public @safe @property @name("_rid") string RID() { return _rid; }
-	public @safe @property @name("_rid") string RID(string value) { return _rid = value; }
-
-	private int _count;
-	public @safe @property @name("_count") int Count() { return _count; }
-	public @safe @property @name("_count") int Count(int value) { return _count = value; }
-
 	private Collection[] _collections;
 	public @safe @property @name("DocumentCollections") Collection[] Collections() { return _collections; }
 	public @safe @property @name("DocumentCollections") Collection[] Collections(Collection[] value) { return _collections = value; }
 }
 
-public class Collection
+public class Collection : DocDBBase
 {
-	private string _id;
-	public @safe @property @name("id") string ID() { return _id; }
-	public @safe @property @name("id") string ID(string value) { return _id = value; }
-
-	private string _rid;
-	public @safe @property @name("_rid") string RID() { return _rid; }
-	public @safe @property @name("_rid") string RID(string value) { return _rid = value; }
-
-	private ulong _ts;
-	public @safe @property @name("_ts") ulong Timestamp() { return _ts; }
-	public @safe @property @name("_ts") ulong Timestamp(ulong value) { return _ts = value; }
-
-	private string _self;
-	public @safe @property @name("_self") string Self() { return _self; }
-	public @safe @property @name("_self") string Self(string value) { return _self = value; }
-
-	private string _etag;
-	public @safe @property @name("_etag") string ETag() { return _etag; }
-	public @safe @property @name("_etag") string ETag(string value) { return _etag = value; }
-
 	private string _docs;
 	public @safe @property @name("_docs") string Docs() { return _docs; }
 	public @safe @property @name("_docs") string Docs(string value) { return _docs = value; }
@@ -133,15 +105,12 @@ public Collection createCollection(AzureDocumentDBConnection conn, string Databa
 			req.method = HTTPMethod.POST;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
 			req.writeJsonBody(["id" : ID]);
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "GET", "dbs", "", reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "POST", "colls", "");
 		},
 		(scope res) {
 			deserializeJson!Collection(db, res.readJson());
 		}
-		);
+	);
 	return db;
 }
 
@@ -152,15 +121,12 @@ public CollectionList listCollections(AzureDocumentDBConnection conn, string Dat
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "POST", "dbs", "", reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "GET", "colls", "");
 		},
 		(scope res) {
 			deserializeJson!CollectionList(dbl, res.readJson());
 		}
-		);
+	);
 	return dbl;
 }
 
@@ -171,15 +137,12 @@ public Collection getCollection(AzureDocumentDBConnection conn, string DatabaseR
 		(scope req) {
 			req.method = HTTPMethod.GET;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "GET", "dbs", RID, reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "GET", "colls", RID);
 		},
 		(scope res) {
 			deserializeJson!Collection(db, res.readJson());
 		}
-		);
+	);
 	return db;
 }
 
@@ -189,10 +152,7 @@ public void deleteCollection(AzureDocumentDBConnection conn, string DatabaseRID,
 		(scope req) {
 			req.method = HTTPMethod.DELETE;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			//Write required headers
-			SysTime reqTime = Clock.currTime().toUTC();
-			req.headers.addField("Authorization", getMasterAuthorizationToken(conn.Key, "DELETE", "dbs", RID, reqTime));
-			req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
+			writeRequiredHeaders(req, conn, "DELETE", "colls", RID);
 		}
 	);
 }
