@@ -1,5 +1,6 @@
 ﻿module azured.documentdb.collection;
 
+import azured.documentdb.base;
 import azured.documentdb.connection;
 import azured.documentdb.utils;
 import std.format;
@@ -17,43 +18,15 @@ public enum CollectionIndexType
 	Range,
 }
 
-public class CollectionList
+public class CollectionList : DocDBListBase
 {
-	private string _rid;
-	public @safe @property @name("_rid") string RID() { return _rid; }
-	public @safe @property @name("_rid") string RID(string value) { return _rid = value; }
-
-	private int _count;
-	public @safe @property @name("_count") int Count() { return _count; }
-	public @safe @property @name("_count") int Count(int value) { return _count = value; }
-
 	private Collection[] _collections;
 	public @safe @property @name("DocumentCollections") Collection[] Collections() { return _collections; }
 	public @safe @property @name("DocumentCollections") Collection[] Collections(Collection[] value) { return _collections = value; }
 }
 
-public class Collection
+public class Collection : DocDBBase
 {
-	private string _id;
-	public @safe @property @name("id") string ID() { return _id; }
-	public @safe @property @name("id") string ID(string value) { return _id = value; }
-
-	private string _rid;
-	public @safe @property @name("_rid") string RID() { return _rid; }
-	public @safe @property @name("_rid") string RID(string value) { return _rid = value; }
-
-	private ulong _ts;
-	public @safe @property @name("_ts") ulong Timestamp() { return _ts; }
-	public @safe @property @name("_ts") ulong Timestamp(ulong value) { return _ts = value; }
-
-	private string _self;
-	public @safe @property @name("_self") string Self() { return _self; }
-	public @safe @property @name("_self") string Self(string value) { return _self = value; }
-
-	private string _etag;
-	public @safe @property @name("_etag") string ETag() { return _etag; }
-	public @safe @property @name("_etag") string ETag(string value) { return _etag = value; }
-
 	private string _docs;
 	public @safe @property @name("_docs") string Docs() { return _docs; }
 	public @safe @property @name("_docs") string Docs(string value) { return _docs = value; }
