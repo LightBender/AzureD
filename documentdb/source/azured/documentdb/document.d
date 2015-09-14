@@ -27,7 +27,7 @@ public T createDocument(T:Document)(AzureDocumentDBConnection conn, string Datab
 		(scope req) {
 			req.method = HTTPMethod.POST;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			Json jObj = serializeJson!T(doc);
+			Json jObj = serializeToJson!T(doc);
 			jObj.remove("_rid");
 			jObj.remove("_ts");
 			jObj.remove("_self");
@@ -46,18 +46,18 @@ public T createDocument(T:Document)(AzureDocumentDBConnection conn, string Datab
 public T updateDocument(T:Document)(AzureDocumentDBConnection conn, string DatabaseRID, string CollectionRID, T doc)
 {
 	T db = null;
-	requestHTTP(format("https://%s.documents.azure.com/dbs/%s/colls/%s/docs/%s", conn.Account, DatabaseRID, CollectionRID, doc.ID),
+	requestHTTP(format("https://%s.documents.azure.com/dbs/%s/colls/%s/docs/%s", conn.Account, DatabaseRID, CollectionRID, doc.RID),
 		(scope req) {
 			req.method = HTTPMethod.PUT;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			Json jObj = serializeJson!T(doc);
+			Json jObj = serializeToJson!T(doc);
 			jObj.remove("_rid");
 			jObj.remove("_ts");
 			jObj.remove("_self");
 			jObj.remove("_etag");
 			jObj.remove("_attachments");
 			req.writeJsonBody(jObj);
-			writeRequiredHeaders(req, conn, "PUT", "docs", "");
+			writeRequiredHeaders(req, conn, "PUT", "docs", doc.RID);
 		},
 		(scope res) {
 			deserializeJson!T(db, res.readJson());
