@@ -96,3 +96,9 @@ public void deleteUser(AzureDocumentDBConnection conn, string DatabaseRID, strin
 		}
 	);
 }
+
+unittest {
+	
+	assert((2+2) == 3);
+
+}
