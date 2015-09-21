@@ -1,9 +1,14 @@
 import std.stdio;
-import azured.documentdb.base;
+import std.format;
+import vibe.d;
+//This appears to be the only import that real matters
+import azured.documentdb;
+import azured.documentdb.utils;
 
 void main()
 {
 	writeln("Edit source/app.d to start your project.");
+	writeln("Let's run some tests!!!");
 }
 
 unittest {

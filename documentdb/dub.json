@@ -4,21 +4,31 @@
 	"copyright": "Copyright © 2015, Adam Wilson",
 	"authors": ["Adam Wilson"],
 	"license": "BSL-1.0",
-	"dependencies": {
-		"vibe-d": "~>0.7.24",
-		"openssl": "~>1.1.4+1.0.1g",
-	},
 	"configurations" : [
         {
             "name"           : "documentdb",
             "targetType"     : "library",
             "sourcePaths"    : [ "./source" ],
+            "dependencies": {
+		"vibe-d": "~>0.7.24",
+		"openssl": "~>1.1.4+1.0.1g",
+		}
         },
         {
-            "name"           : "tests",	
-            "sourcePaths"    : [ "./tests" ],
-            "targetType"     : "executable",
-            "targetName"     : "documentdb-tests",
+            "name": "unittest",
+            "targetType": "executable",
+            "targetPath" : "tests",
+            "buildOptions": ["unittests"],
+            "excludedSourceFiles": ["source/app.d"],
+            "mainSourceFile": "tests/tests.d",
+            "versions": ["VibeCustomMain"],
+            "sourcePaths": ["./tests/"],
+            "importPaths": ["./tests/"],
+            "dependencies": {
+            	   "vibe-d": "~>0.7.24",
+	          "openssl": "~>1.1.4+1.0.1g",
+                 "dunit": ">=1.0.9"
+            }
         }
     ]
 

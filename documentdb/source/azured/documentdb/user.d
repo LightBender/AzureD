@@ -99,6 +99,19 @@ public void deleteUser(AzureDocumentDBConnection conn, string DatabaseRID, strin
 
 unittest {
 	
-	assert((2+2) == 3);
+	import std.stdio;
+
+	try 
+	{
+		assert((2+2) == 5);
+	}
+	catch (Exception eX)
+	{
+		writeln("catch %s", eX.msg);
+	}
+	finally {
+
+		writeln("All tests completed.");
+	}
 
 }
