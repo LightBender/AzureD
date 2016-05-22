@@ -122,3 +122,4 @@ Backup*/
 UpgradeLog*.XML
 
 documentdb/tests/documentdb
+.vscode/

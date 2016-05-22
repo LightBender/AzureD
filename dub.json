@@ -1,17 +1,54 @@
 {
 	"name": "azured",
 	"description": "AzureD is a D implementation of the Azure REST API.",
-	"copyright": "Copyright © 2015",
-	"authors": ["Adam Wilson"],
+	"copyright": "Copyright © 2015-2016",
+	"authors": ["Adam Wilson", "Samuel Sellars"],
 	"license": "BSL-1.0",
-	"targetType": "none",
+	"targetType": "library",
+
 	"dependencies": {
-		"azured:documentdb": "*"
+		"vibe-d:http": "~>0.7.28",
+		":documentdb": "*",
+		":keyvault": "*",
+		":storage": "*"
 	},
-	"subPackages": [{
-		"name": "documentdb",
-		"targetType": "library",
-		"sourcePaths": ["documentdb/source"],
-		"importPaths": ["documentdb/source"]
-    }]
+	"subPackages": [
+		{
+			"name": "documentdb",
+			"description": "Azure DocumentDB Client API",
+			"targetType": "library",
+			"sourcePaths": ["source/azured/documentdb"],
+			"dependencies": {
+				"openssl": "~>1.1.4+1.0.1g"
+			}
+		},
+		{
+			"name": "keyvault",
+			"description": "Azure KeyVault Client API",
+			"targetType": "library",
+			"sourcePaths": ["source/azured/keyvault"]
+		},
+		{
+			"name": "storage",
+			"description": "Azure Storage Client API",
+			"targetType": "library",
+			"sourcePaths": ["source/azured/storage"]
+		},
+        {
+            "name": "unittest",
+            "targetType": "executable",
+            "targetPath" : "tests",
+            "buildOptions": ["unittests"],
+            "excludedSourceFiles": ["source/app.d"],
+            "mainSourceFile": "tests/tests.d",
+            "versions": ["VibeCustomMain"],
+            "sourcePaths": ["./tests/"],
+            "importPaths": ["./tests/"],
+            "dependencies": {
+				"vibe-d:http": "~>0.7.28",
+				"openssl": "~>1.1.4+1.0.1g",
+				"dunit": ">=1.0.9"
+            }
+        }
+	]
 }
