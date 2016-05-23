@@ -4,13 +4,15 @@ libdocumentdb.a
 #DUB
 *.userprefs
 .dub
+*.selections.json
 docs.json
 __dummy.html
 *.o
+*.a
 *.obj
 __test*
 **/__test*
-
+.DS_Store
 
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 [Bb]in/
