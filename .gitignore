@@ -1,5 +1,8 @@
-#Executeables
-libdocumentdb.a
+#Binaries
+*.o
+*.a
+*.dll
+*.lib
 
 #DUB
 *.userprefs
@@ -7,8 +10,6 @@ libdocumentdb.a
 *.selections.json
 docs.json
 __dummy.html
-*.o
-*.a
 *.obj
 __test*
 **/__test*

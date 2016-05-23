@@ -1,6 +1,9 @@
 module azured.keyvault.client;
 
+import std.array;
 import std.format;
+import std.string;
+import std.stdio;
 import vibe.d;
 
 public enum string KeyVaultApiVersion = "2015-06-01";
@@ -15,42 +18,82 @@ private struct authToken
 	public @name("access_token") string accessToken;
 }
 
-public class KeyVaultClient
+public final class KeyVaultClient
 {
 	private immutable string _vaultName;
 	package @safe @property final string vaultName() { return _vaultName; }
-    private immutable string _tenantName;
 	private immutable string _appId;
 	private immutable string _secretKey;
+	private string _authorization;
+	private string _resource;
 
 	private shared authToken _currentToken;
 	package @safe @property final string token()
 	{
 		if(_currentToken.accessToken is null || _currentToken.accessToken == "")
-			authorize();
+			authorize(_authorization, _resource);
 		return _currentToken.accessToken;
 	}
 
-    public @safe this(string vaultName, string tenantName, string appId, string secretKey)
+    public @trusted this(string vaultName, string appId, string secretKey)
     {
 		_vaultName = vaultName;
-		_tenantName = tenantName;
 		_appId = appId;
 		_secretKey = secretKey;
-    }
 
-	package @trusted final void authorize()
-	{
-		authToken at;
-		requestHTTP(format("https://login.microsoftonline.com/%s.onmicrosoft.com/oauth2/token?api-version=1.0", _tenantName),
+		//Send a request for a the purpose of getting a challenge.
+		string reqUri = format("https://%s.vault.azure.net/secrets?api-version=%s", vaultName,  KeyVaultApiVersion);
+		writeln(reqUri);
+		requestHTTP(reqUri,
 			(scope req) {
 				req.method = HTTPMethod.GET;
 				req.httpVersion = HTTPVersion.HTTP_1_1;
-				req.writeBody(cast(ubyte[])format("grant_type=client_credentials&resource=https://graph.windows.net&client_id=%s&client_secret=%s", _appId, _secretKey));
+			},
+			(scope res) {
+				if(res is null)
+					throw new Exception(format("No response received to authentication request for KeyVault: %s", vaultName));
+				else if(res.statusCode == 401)
+				{
+					string challenge = res.headers.get("WWW-Authenticate");
+					challenge = challenge[7..$];
+					auto cl = split(challenge, ",");
+					_authorization = strip(cl[0])[15..$-1];
+					_resource = strip(cl[1])[10..$-1];
+					authorize(_authorization, _resource);
+				}
+				else
+					throw new Exception(format("Unable to authenticate with KeyVault: %s", vaultName));
+			 }
+		);
+    }
+
+	package @safe void authorize(string challenge)
+	{
+		string cstr = challenge[7..$];
+		auto cl = split(cstr, ",");
+		string auth = strip(cl[0])[15..$-1];
+		string resource = strip(cl[1])[10..$-1];
+		if(auth == _authorization && resource == _resource)
+			authorize(_authorization, _resource);
+		else
+			throw new Exception("Authorization or Resource mismatch.");
+	}
+
+	private @trusted void authorize(string authorization, string resource, string authScope = null)
+	{
+		authToken at;
+		requestHTTP(format("%s/oauth2/token?api-version=1.0", authorization),
+			(scope req) {
+				req.method = HTTPMethod.GET;
+				req.httpVersion = HTTPVersion.HTTP_1_1;
+				req.writeBody(cast(ubyte[])format("grant_type=client_credentials&resource=%s&client_id=%s&client_secret=%s", resource, _appId, _secretKey));
 			},
 			(scope res) {
 				if(res.statusCode == 200)
+				{
+					writeln(res.bodyReader.readAllUTF8());
 					deserializeJson!authToken(at, res.readJson());
+				}
 				else
 					throw new Exception("Unable to authenticate with Azure Active Directory using the supplied credentials");
 			}
