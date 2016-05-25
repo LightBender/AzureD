@@ -13,10 +13,10 @@ public struct KeyVaultAttributes
 public struct KeyVaultSecret
 {
 	public @name("value") string value;
-	public @name("contentType") string contentType;
+	public @optional @name("contentType") string contentType;
 	public @name("id") string id;
-	public @name("attributes") KeyVaultAttributes attributes;
-	public @name("tags") string[string] tags;
+	public @optional @name("attributes") KeyVaultAttributes attributes;
+	public @optional @name("tags") string[string] tags;
 }
 
 public KeyVaultSecret setSecret(KeyVaultClient client, string name, KeyVaultSecret secret)

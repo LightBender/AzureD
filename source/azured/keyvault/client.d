@@ -1,6 +1,7 @@
 module azured.keyvault.client;
 
 import std.array;
+import std.conv;
 import std.format;
 import std.string;
 import std.stdio;
@@ -16,6 +17,16 @@ private struct authToken
 	public @name("not_before") long notBefore;
 	public @name("resource") string resource;
 	public @name("access_token") string accessToken;
+
+	public this(Json json)
+	{
+		tokenType = json["token_type"].get!string;
+		expiresIn = to!int(json["expires_in"].get!string);
+		expiresOn = to!long(json["expires_on"].get!string);
+		notBefore = to!long(json["not_before"].get!string);
+		resource = json["resource"].get!string;
+		accessToken = json["access_token"].get!string;
+	}
 }
 
 public final class KeyVaultClient
@@ -43,7 +54,6 @@ public final class KeyVaultClient
 
 		//Send a request for a the purpose of getting a challenge.
 		string reqUri = format("https://%s.vault.azure.net/secrets?api-version=%s", vaultName,  KeyVaultApiVersion);
-		writeln(reqUri);
 		requestHTTP(reqUri,
 			(scope req) {
 				req.method = HTTPMethod.GET;
@@ -90,10 +100,7 @@ public final class KeyVaultClient
 			},
 			(scope res) {
 				if(res.statusCode == 200)
-				{
-					writeln(res.bodyReader.readAllUTF8());
-					deserializeJson!authToken(at, res.readJson());
-				}
+					at = authToken(res.readJson());
 				else
 					throw new Exception("Unable to authenticate with Azure Active Directory using the supplied credentials");
 			}
