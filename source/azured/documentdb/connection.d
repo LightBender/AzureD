@@ -5,14 +5,14 @@ import std.base64;
 public class AzureDocumentDBConnection
 {
 	private string _account;
-	public @safe @property string Account() { return _account; }
-	public @safe @property string Account(string value) { return _account = value; }
+	public @safe @property string Account() nothrow { return _account; }
+	public @safe @property string Account(string value) nothrow { return _account = value; }
 
 	private string _masterKey;
-	public @safe @property string MasterKey() { return _masterKey; }
+	public @safe @property string MasterKey() nothrow { return _masterKey; }
 
 	private string _resourceKey;
-	public @safe @property string ResourceKey() { return _resourceKey; }
+	public @safe @property string ResourceKey() nothrow { return _resourceKey; }
 
 	this(string account, string resourceKey, string masterKey = null)
 	{
