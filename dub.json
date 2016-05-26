@@ -7,7 +7,7 @@
 	"targetType": "library",
 
 	"dependencies": {
-		"vibe-d:http": "~>0.7.28",
+		"vibe-d": "~>0.7.28",
 		":documentdb": "*",
 		":keyvault": "*",
 		":storage": "*"

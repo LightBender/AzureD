@@ -20,9 +20,9 @@ private string getGenericAuthorizationToken(AzureStorageClient conn, HTTPClientR
 	string cmd5 =  req.headers.get("Content-MD5");
 	string ct = req.contentType;
 	string ctp = "; " ~ req.contentTypeParameters;
-	string crs = "/" ~ conn.Account ~ "/" ~ path;
+	string crs = format("/%s/%s", conn.Account, path);
 	if(comp !is null || comp != "") crs ~= "?comp=" ~ comp;
-	string chd = "x-ms-date:" ~ toRFC822DateTimeString(time) ~ "\nx-ms-version:" ~ StorageApiVersion;
+	string chd = format("x-ms-date:%s\nx-ms-version:%s\n", toRFC822DateTimeString(time), StorageApiVersion);
 
 	string sigstr = format("%s\n%s\n%s\n%s\n%s\n%s",
 		to!string(req.method).toUpper(),
@@ -48,9 +48,9 @@ public void writeGenericRequiredHeaders(AzureStorageClient conn, HTTPClientReque
 
 private string getTableAuthorizationToken(AzureStorageClient conn, string path, string comp, SysTime time)
 {
-	string crs = "/" ~ conn.Account ~ "/" ~ path;
+	string crs = format("/%s/%s", conn.Account, path);
 	if(comp !is null || comp != "") crs ~= "?comp=" ~ comp;
-	string chd = "x-ms-date:" ~ toRFC822DateTimeString(time) ~ "\nx-ms-version:" ~ StorageApiVersion;
+	string chd = format("x-ms-date:%s\nx-ms-version:%s\n", toRFC822DateTimeString(time), StorageApiVersion);
 
 	string sigstr = format("%s\n%s\n%s",
 		toRFC822DateTimeString(time),
