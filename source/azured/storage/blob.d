@@ -1,5 +1,12 @@
 module azured.storage.blob;
 
+import std.array;
+import std.conv;
+import std.format;
+import std.string;
+import std.stdio;
+import vibe.d;
+
 import azured.storage.client;
 import azured.storage.security;
 
@@ -25,13 +32,12 @@ public final class AzureStorageBlobClient : AzureStorageClient
 
 public void putBlob(AzureStorageBlobClient client, string container, string path, ubyte[] data)
 {
-	KeyVaultSecret ns;
 	requestHTTP(format("https://%s.blob.core.windows.net/%s/%s", client.Account, container, path),
 		(scope req) {
 			req.method = HTTPMethod.PUT;
 			req.httpVersion = HTTPVersion.HTTP_1_1;
-			req.contentType = "application/octet-stream"
-			req.bodyWriter.write(data)
+			req.contentType = "application/octet-stream";
+			req.bodyWriter.write(data);
 			client.writeRequiredHeaders(req, AzureBlobType.Block, container ~ "/" ~ path);
 		},
 		(scope res) {
@@ -39,12 +45,12 @@ public void putBlob(AzureStorageBlobClient client, string container, string path
 				throw new Exception("Unable to upload blob.");
 		}
 	);
-	return ns;
 }
 
 public ubyte[] getBlob(AzureStorageBlobClient client, string container, string path)
 {
-	KeyVaultSecret ns;
+	ubyte[] blob;
+	blob.reserve(262144);
 	requestHTTP(format("https://%s.blob.core.windows.net/%s/%s", client.Account, container, path),
 		(scope req) {
 			req.method = HTTPMethod.GET;
@@ -54,7 +60,18 @@ public ubyte[] getBlob(AzureStorageBlobClient client, string container, string p
 		(scope res) {
 			if(res.statusCode != 200)
 				throw new Exception("Unable to upload blob.");
+			res.readRawBody((scope reader)
+			{
+				while(!reader.empty)
+				{
+					if(reader.leastSize == 0)
+						sleep(10.msecs);
+					ubyte[] temp = new ubyte[cast(uint)reader.leastSize];
+					reader.read(temp);
+					blob ~= temp;
+				}
+			});
 		}
 	);
-	return ns;
+	return blob;
 }

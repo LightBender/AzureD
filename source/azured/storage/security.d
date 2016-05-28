@@ -14,7 +14,7 @@ import vibe.textfilter.urlencode;
 import vibe.http.client;
 
 import azured.storage.client;
-import azured.storage.client;
+import azured.storage.blob;
 
 private string getAuthorizationToken(AzureStorageBlobClient conn, HTTPClientRequest req, AzureBlobType blobType, string path, string comp, SysTime time)
 {
@@ -42,7 +42,7 @@ public void writeRequiredHeaders(AzureStorageBlobClient conn, HTTPClientRequest 
 {
 	//Write required headers
 	SysTime reqTime = Clock.currTime().toUTC();
-	req.headers.addField("Authorization", getAuthorizationToken(conn, req, path, comp, reqTime));
+	req.headers.addField("Authorization", getAuthorizationToken(conn, req, blobType, path, comp, reqTime));
 	req.headers.addField("x-ms-date", toRFC822DateTimeString(reqTime));
 	req.headers.addField("x-ms-version", StorageApiVersion);
 	req.headers.addField("x-ms-blob-type", to!string(blobType) ~ "Blob");
